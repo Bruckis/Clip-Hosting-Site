@@ -446,7 +446,7 @@ namespace cliphostingsite.Controllers
                 DataTable userTable = new DataTable();
                 using (SqlConnection sqlCon = new SqlConnection(connectionstring))
                 {
-                    
+                    // THIS IS A TEST
                     sqlCon.Open();
                     string query = "SELECT username, avatar, publicuid FROM usertbl WHERE username = @username";
                     SqlDataAdapter sqlDa = new SqlDataAdapter(query, sqlCon);
