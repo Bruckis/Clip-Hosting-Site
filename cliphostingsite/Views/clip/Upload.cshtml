@@ -1,0 +1,38 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Upload";
+}
+
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Upload a clip</title>
+    <link src="~/Content/main.css" rel="stylesheet">
+    <script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
+    <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div id="fileUpload" style="width: 500px; height: 100px; border:1px solid black;">
+        <form method="post" action="@Url.Action("Upload", "clip")" enctype="multipart/form-data">
+            <input type="file" id="clip" name="clip" accept="video/*" />
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+    @if (ViewBag.Message != null)
+    {
+        <span>@ViewBag.Message</span>
+    }
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.6.1.min.js"></script>
+    <script src="js/vendor/modernizr-3.11.2.min.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
+

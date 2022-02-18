@@ -1,0 +1,30 @@
+﻿@model cliphostingsite.Models.clipModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Watch";
+}
+<head>
+    <meta charset="utf-8">
+    <title>Watch a clip</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link src="~/Content/main.css" rel="stylesheet">
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Place favicon.ico in the root directory -->
+
+</head>
+
+
+<div class="Watch">
+    <video src="~/Content/videos/@Model.clipid" title="@Model.clipid" controls class="editvideo" style="width:100%" />
+
+</div>
+<div class="text" style="margin-top:50px">
+    @Model.title <br />
+    @Model.description<br />
+</div>

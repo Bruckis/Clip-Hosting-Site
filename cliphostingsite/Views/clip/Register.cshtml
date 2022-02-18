@@ -1,0 +1,37 @@
+﻿@model cliphostingsite.Models.registerModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    ViewBag.Title = "Register";
+}
+<head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link src="~/Content/main.css" rel="stylesheet">
+    @Styles.Render("~/Content/bootstrap.min.css")
+</head>
+<body>
+    <div class="registerbackground">
+        <div class="registerdiv">
+            @using (Html.BeginForm("AuthUserLogin", "clip", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken();
+                <label type="text" name="username" placeholder="Username" runat="server">@Html.TextBoxFor(model => model.username)</label><br />
+                @Html.ValidationMessageFor(m => m.username)
+                <label type="text" name="email" placeholder="Email" runat="server">@Html.TextBoxFor(model => model.email)</label><br />
+                @Html.ValidationMessageFor(m => m.email)
+                <label type="password" name="password" placeholder="Password" runat="server">@Html.TextBoxFor(model => model.password)</label> <br />
+                @Html.ValidationMessageFor(m => m.password)
+                <input type="submit" value="Log in" />
+                @Session["publicuid"]
+            }
+        </div>
+    </div>
+</body>
+@if (ViewBag.Message != null)
+{
+    <span>@ViewBag.Message</span>
+}

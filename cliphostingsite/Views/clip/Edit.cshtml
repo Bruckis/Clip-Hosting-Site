@@ -1,0 +1,33 @@
+﻿@model cliphostingsite.Models.clipModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Edit";
+}
+<head>
+    <meta charset="utf-8">
+    <title>Edit your clip</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link src="~/Content/main.css" rel="stylesheet">
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Place favicon.ico in the root directory -->
+
+</head>
+
+
+<div class="edit">
+    <form method="post" action="@Url.Action("Edit", "clip")" enctype="multipart/form-data">
+        <input type="text" name="title" value="@Model.title" placeholder="Title" /><br />
+        <input type="text" name="description" value="@Model.description" placeholder="Description" /><br />
+        <input type="submit" value="submit" /><br />
+    </form>
+    <br /><br /><br /><br /><br />
+
+    <video src="~/Content/videos/@Session["filename"].ToString()" title="@Session["filename"].ToString()" controls class="editvideo" style="width:100%" />  x
+
+</div>

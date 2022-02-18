@@ -1,0 +1,36 @@
+﻿@model cliphostingsite.Models.loginModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewBag.Title = "Login";
+}
+<head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="~/Scripts/jquery-1.7.1.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <link href="~/Content/main.css" rel="stylesheet">
+    @Styles.Render("~/Content/bootstrap.min.css")
+</head>
+<div class="loginbackground">
+    <div class="logindiv">
+@using (Html.BeginForm("AuthUserLogin", "clip",  FormMethod.Post, new { @class="loginform" }))        {
+            @Html.AntiForgeryToken();
+            <label type="text" name="username" placeholder="Username" runat="server">@Html.TextBoxFor(model => model.username)</label><br />
+            @Html.ValidationMessageFor(m => m.username)
+            <label type="password" name="password" placeholder="Password" runat="server">@Html.PasswordFor(model => model.password)</label> <br />
+            @Html.ValidationMessageFor(m => m.password)
+            <input type="submit" value="Log in" />
+            @Session["publicuid"]
+        }
+    </div>
+</div>
+@if (ViewBag.Message != null)
+{
+<span>@ViewBag.Message</span>
+}
