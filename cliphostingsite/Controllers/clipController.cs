@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.IO;
 using cliphostingsite.Models;
 using BC = BCrypt.Net.BCrypt;
+using System.Diagnostics;
 
 namespace cliphostingsite.Controllers
 {
@@ -446,11 +447,10 @@ namespace cliphostingsite.Controllers
                 DataTable userTable = new DataTable();
                 using (SqlConnection sqlCon = new SqlConnection(connectionstring))
                 {
-                    // THIS IS A TEST
                     sqlCon.Open();
-                    string query = "SELECT username, avatar, publicuid FROM usertbl WHERE username = @username";
+                    string query = "SELECT username, avatar, publicuid FROM usertbl WHERE publicuid = @publicuid";
                     SqlDataAdapter sqlDa = new SqlDataAdapter(query, sqlCon);
-                    sqlDa.SelectCommand.Parameters.AddWithValue("@username", Request.Form["username"]);
+                    sqlDa.SelectCommand.Parameters.AddWithValue("@publicuid", Session["publicuid"]);
                     sqlDa.Fill(userTable);
                     sqlCon.Close();
                 }
@@ -472,6 +472,34 @@ namespace cliphostingsite.Controllers
             {
                 ViewBag.Message = "No valid profile found, please log in again";
                 return RedirectToAction("Login");
+            }
+        }
+
+        [HttpPost]
+        public void changeUsername(string username)
+        {
+            using (SqlConnection sqlCon = new SqlConnection(connectionstring))
+            {
+                string query = ("UPDATE usertbl SET username = @username WHERE publicuid = @publicuid");
+                SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
+                sqlCmd.Parameters.AddWithValue("@username", username);
+                sqlCmd.Parameters.AddWithValue("@publicuid", Session["publicuid"]);
+                Debug.WriteLine(query);
+                Debug.WriteLine(username);
+                try
+                {
+                    sqlCon.Open();
+                    sqlCmd.ExecuteNonQuery();
+                    sqlCon.Close();
+                    Debug.WriteLine("Ran code");
+                    Session["username"] = username;
+
+                }
+                catch (Exception ex)
+                {
+                    Session["errormsg"] = ex.Message;
+                }
+
             }
         }
     }
