@@ -1,5 +1,4 @@
-﻿@model cliphostingsite.Models.userModel
-
+﻿@model cliphostingsite.Models.profileModel
 @{
     ViewBag.Title = "Profile";
 }
@@ -61,14 +60,26 @@
 
 
         $(document).on('blur', '#txt_username', function () {
-            var username = $(this).val();
+            var username = $(this).val().toString();
+            console.log(username)
+            UsernameDic =
+            {
+                "username": username.toString(),
+            }
             $.ajax({
-                type: 'post',
+                type: 'POST',
                 url: '/clip/changeUsername',
-                data: username,
-                success: function () {
-                    $('#username').text(username);
-                    alert("Username has been changed")
+                dataType: 'JSON',
+                contentType: "application/json; charset=utd-8",
+                data: JSON.stringify(UsernameDic),
+                success: function (data) {
+                    if (data) {
+                        $('#username').text(username);
+                        alert("Username has been changed")
+                    }
+                    else {
+                        alert("An error has occured, please try again")
+                    }
                 }
             });
         });

@@ -22,14 +22,5 @@ $('#username').click(function () {
 });
 
 $(document).on('blur', '#txt_username', function () {
-    var username = $(this).val();
-    $.ajax({
-        type: 'post',
-        url: '/clip/chgusrn',
-        data: username,
-        success: function () {
-            $('#username').text(username);
-            alert("Username has been changed")
-        }
-    });
+    
 });

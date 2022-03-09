@@ -16,16 +16,16 @@
 <body>
     <div class="registerbackground">
         <div class="registerdiv">
-            @using (Html.BeginForm("AuthUserLogin", "clip", FormMethod.Post))
+            @using (Html.BeginForm("RegisterUser", "clip", FormMethod.Post))
             {
                 @Html.AntiForgeryToken();
                 <label type="text" name="username" placeholder="Username" runat="server">@Html.TextBoxFor(model => model.username)</label><br />
-                @Html.ValidationMessageFor(m => m.username)
-                <label type="text" name="email" placeholder="Email" runat="server">@Html.TextBoxFor(model => model.email)</label><br />
-                @Html.ValidationMessageFor(m => m.email)
-                <label type="password" name="password" placeholder="Password" runat="server">@Html.TextBoxFor(model => model.password)</label> <br />
-                @Html.ValidationMessageFor(m => m.password)
-                <input type="submit" value="Log in" />
+                @Html.ValidationMessageFor(model => model.username)
+                <label type="email" name="email" placeholder="Email" runat="server">@Html.TextBoxFor(model => model.email)</label><br />
+                @Html.ValidationMessageFor(model => model.email)
+                <label type="password" name="password" placeholder="Password" runat="server">@Html.PasswordFor(model => model.password)</label> <br />
+                @Html.ValidationMessageFor(model => model.password)
+                <input type="submit" value="Register" />
                 @Session["publicuid"]
             }
         </div>

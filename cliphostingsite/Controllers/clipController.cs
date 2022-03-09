@@ -325,7 +325,8 @@ namespace cliphostingsite.Controllers
             }
             if (accountTable.Rows.Count == 1)
             {
-                if (!BC.Verify(accountTable.Rows[0][0].ToString(), BC.HashPassword(Request.Form["password"])))
+                string password = BC.HashPassword(Request.Form["password"]);
+                if (!BC.Verify(accountTable.Rows[0][1].ToString(), BC.HashPassword(Request.Form["password"])))
                 {
                     // authentication failed
                     ViewBag.Message = "Authentication failed, wrong password";
@@ -376,10 +377,6 @@ namespace cliphostingsite.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult RegisterUser(registerModel registerModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(registerModel);
-            }
             DataTable accountTable = new DataTable();
             using (SqlConnection sqlCon = new SqlConnection(connectionstring))
             {
@@ -423,9 +420,9 @@ namespace cliphostingsite.Controllers
                     sqlcon.Open();
                     string query = ("INSERT INTO usertbl VALUES(@username, @email, @password, @avatar, @userlevel, @privateuid, @publicuid)");
                     SqlCommand sqlCmd = new SqlCommand(query, sqlcon);
-                    sqlCmd.Parameters.AddWithValue("@username", Request.Form["username"]);
-                    sqlCmd.Parameters.AddWithValue("@email", Request.Form["email"]);
-                    sqlCmd.Parameters.AddWithValue("@password", BC.HashPassword(Request.Form["password"]));
+                    sqlCmd.Parameters.AddWithValue("@username", Request.Form["username"]); string testuser = Request.Form["username"];
+                    sqlCmd.Parameters.AddWithValue("@email", Request.Form["email"]); 
+                    sqlCmd.Parameters.AddWithValue("@password", BC.HashPassword(Request.Form["password"])); string testpassword = Request.Form["password"];
                     sqlCmd.Parameters.AddWithValue("@avatar", "default.png");
                     sqlCmd.Parameters.AddWithValue("@userlevel", 1);
                     sqlCmd.Parameters.AddWithValue("@privateuid", Guid.NewGuid());
@@ -433,8 +430,9 @@ namespace cliphostingsite.Controllers
                     sqlCmd.ExecuteNonQuery();
                 }
                 Session["username"] = Request.Form["username"];
-                Session["avatar"] = Request.Form["avatar"];
+                Session["avatar"] = "default.png";
                 Session["publicuid"] = publicuid;
+                Session["loggedIn"] = "true";
                 return RedirectToAction("Upload");
             }
         }
@@ -476,32 +474,48 @@ namespace cliphostingsite.Controllers
         }
 
         [HttpPost]
-        public void changeUsername(string username)
+        public bool changeUsername(profileModel modelUsername)
         {
-            using (SqlConnection sqlCon = new SqlConnection(connectionstring))
+
+            if (isSessionValid())
             {
-                string query = ("UPDATE usertbl SET username = @username WHERE publicuid = @publicuid");
-                SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
-                sqlCmd.Parameters.AddWithValue("@username", username);
-                sqlCmd.Parameters.AddWithValue("@publicuid", Session["publicuid"]);
-                Debug.WriteLine(query);
-                Debug.WriteLine(username);
-                try
+                Debug.WriteLine(modelUsername.username);
+                if (!string.IsNullOrEmpty(modelUsername.username))
                 {
-                    sqlCon.Open();
-                    sqlCmd.ExecuteNonQuery();
-                    sqlCon.Close();
-                    Debug.WriteLine("Ran code");
-                    Session["username"] = username;
+                    using (SqlConnection sqlCon = new SqlConnection(connectionstring))
+                    {
+                        string query = ("UPDATE usertbl SET username = @username WHERE publicuid = @publicuid");
+                        SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
+                        sqlCmd.Parameters.AddWithValue("@username", modelUsername.username);
+                        sqlCmd.Parameters.AddWithValue("@publicuid", Session["publicuid"]);
+                        Debug.WriteLine(query);
+                        Debug.WriteLine(modelUsername.username);
+                        Debug.WriteLine(Session["publicuid"]);
+                        try
+                        {
+                            sqlCon.Open();
+                            sqlCmd.ExecuteNonQuery();
+                            Debug.WriteLine("Ran code");
+                            Session["username"] = modelUsername.username;
+                            return true;
 
-                }
-                catch (Exception ex)
-                {
-                    Session["errormsg"] = ex.Message;
-                }
+                        }
+                        catch (Exception ex)
+                        {
+                            Session["errormsg"] = ex.Message;
+                            return false;
+                        }
 
+                    }
+                }
+                else return false;
+            }
+            else
+            {
+                return false;
             }
         }
+
     }
 
 }

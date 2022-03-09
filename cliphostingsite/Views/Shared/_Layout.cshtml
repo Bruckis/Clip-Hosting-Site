@@ -23,16 +23,15 @@
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Upload", "Upload", "clip")</li>
                     @if (string.IsNullOrEmpty(Session["loggedIn"] as string)) { Session["loggedIn"] = "false"; }
-                    @if (Session["loggedIn"].ToString() != "true")
-                    {
-                        <li>@Html.ActionLink("Login", "Login", "clip")</li>
-                        <li>@Html.ActionLink("Register", "Register", "clip")</li>
-                    }
-                    else
+                    @if (Session["loggedIn"].ToString() == "true" && !string.IsNullOrEmpty(Session["loggedIn"] as string))
                     {
                         <li class="profileLink"><a href="@Url.Action("Profile", "clip")"><img style="max-height:10%; max-width:10%" src="~/Content/avatars/@Session["avatar"].ToString()" /></a></li>
                     }
-
+                    else
+                    {
+                        <li>@Html.ActionLink("Login", "Login", "clip")</li>
+                        <li>@Html.ActionLink("Register", "Register", "clip")</li>
+                        }
                 </ul>
             </div>
         </div>

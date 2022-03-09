@@ -52,4 +52,11 @@ namespace cliphostingsite.Models
     {
         public bool Bool { get; set; }
     }
+    public class profileModel
+    {
+        public string username { get; set; }
+        public string password { get; set; }
+        public EmailAddressAttribute email { get; set; }
+
+    }
 }
