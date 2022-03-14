@@ -325,8 +325,7 @@ namespace cliphostingsite.Controllers
             }
             if (accountTable.Rows.Count == 1)
             {
-                string password = BC.HashPassword(Request.Form["password"]);
-                if (!BC.Verify(accountTable.Rows[0][1].ToString(), BC.HashPassword(Request.Form["password"])))
+                if (!BC.Verify(Request.Form["password"], accountTable.Rows[0][1].ToString()))
                 {
                     // authentication failed
                     ViewBag.Message = "Authentication failed, wrong password";
@@ -510,10 +509,56 @@ namespace cliphostingsite.Controllers
                 }
                 else return false;
             }
-            else
+            else return false;
+        }
+
+        [HttpPost]
+        public bool changeAvatar()
+        {
+            if (isSessionValid())
             {
-                return false;
+                var file = Request.Files[0];
+                Debug.WriteLine(file);
+                if (file != null)
+                {
+                    var name = Path.GetFileName(file.FileName);
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        var path = Path.Combine(Server.MapPath("~/Content/avatars"), Path.GetFileName(file.FileName));
+                        Debug.WriteLine(Path.GetFileName(file.FileName));
+                        Debug.WriteLine(path);
+                        file.SaveAs(path);
+                    }
+                    using (SqlConnection sqlCon = new SqlConnection(connectionstring))
+                    {
+                        string query = ("UPDATE usertbl SET avatar = @avatar WHERE publicuid = @publicuid");
+                        SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
+                        sqlCmd.Parameters.AddWithValue("@avatar", Path.GetFileName(file.FileName));
+                        sqlCmd.Parameters.AddWithValue("@publicuid", Session["publicuid"]);
+                        Debug.WriteLine(query);
+                        Debug.WriteLine(Path.GetFileName(file.FileName));
+                        Debug.WriteLine(Session["publicuid"]);
+                        try
+                        {
+                            sqlCon.Open();
+                            sqlCmd.ExecuteNonQuery();
+                            Debug.WriteLine("Ran code");
+                            Session["avatar"] = Path.GetFileName(file.FileName);
+                            return true;
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Session["errormsg"] = ex.Message;
+                            return false;
+                        }
+
+                    }
+
+                }
+                else return false;
             }
+            else return false;
         }
 
     }

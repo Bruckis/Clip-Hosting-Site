@@ -13,32 +13,6 @@
     <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
     <link href="~/Content/main.css" rel="stylesheet">
     @Styles.Render("~/Content/bootstrap.min.css")
-</head>
-
-<h2>Profile</h2>
-
-<div>
-    <h4>Profile</h4>
-    <hr />
-    <div id="username">@Session["username"]</div>
-    <br />
-    <br />
-    <div id="avatar"><img src="~/Content/avatars/@Session["avatar"]" /></div>
-    <br />
-    <br />
-    <div id="email">@Session["email"]</div>
-    <br />
-    <br />
-    <div id="passworddiv">
-        <button id="changepwbutton">Change Password</button>
-    </div>
-    <br />
-    <br />
-    @if (!string.IsNullOrEmpty(Session["errormsg"] as string))
-        {
-        Session["errormsg"].ToString();
-        }
-
 
     <script>
         $('#username').click(function () {
@@ -84,6 +58,58 @@
             });
         });
     </script>
+
+    <script>
+        function uploadAvatar() {
+            console.log("test")
+            var pfp_file = $("#imgupload").prop("files")[0];
+            var form_data = new FormData();
+            form_data.append(pfp_file.name, pfp_file)
+            $.ajax({
+                type: 'POST',
+                url: '/clip/changeAvatar',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                success: function () {
+                    $('#avatar').src = "~/Content/avatars/@Session["avatar"]";
+                    $('#navbar_avatar').src = "~/Content/avatars/@Session["avatar"]"
+                    alert("Avatar has been changed");
+                }
+            });
+        };
+    </script>
+
+</head>
+
+<h2>Profile</h2>
+
+<div>
+    <h4>Profile</h4>
+    <hr />
+    <div id="username">@Session["username"]</div>
+    <br />
+    <br />
+    <div>
+        <label for="imgupload"class="btn">Change avatar</label>
+        <input type="file" id="imgupload" style="visibility:hidden" accept="image/*" onchange="uploadAvatar()" /></>
+    </div>
+    <div id="avatar"><img src="~/Content/avatars/@Session["avatar"]" /></div>
+    <br />
+    <br />
+    <div id="email">@Session["email"]</div>
+    <br />
+    <br />
+    <div id="passworddiv">
+        <button id="changepwbutton">Change Password</button>
+    </div>
+    <br />
+    <br />
+    @if (!string.IsNullOrEmpty(Session["errormsg"] as string))
+    {
+        Session["errormsg"].ToString();
+    }
+
 </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
