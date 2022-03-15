@@ -513,7 +513,7 @@ namespace cliphostingsite.Controllers
         }
 
         [HttpPost]
-        public bool changeAvatar()
+        public bool changeAvatar(string extension)
         {
             if (isSessionValid())
             {
@@ -521,11 +521,20 @@ namespace cliphostingsite.Controllers
                 Debug.WriteLine(file);
                 if (file != null)
                 {
-                    var name = Path.GetFileName(file.FileName);
+                    DataTable userTable = new DataTable();
+                    using (SqlConnection sqlCon = new SqlConnection(connectionstring))
+                    {
+                        sqlCon.Open();
+                        string query = "SELECT privateuid FROM usertbl WHERE publicuid = @publicuid";
+                        SqlDataAdapter sqlDa = new SqlDataAdapter(query, sqlCon);
+                        sqlDa.SelectCommand.Parameters.AddWithValue("@publicuid", Session["publicuid"]);
+                        sqlDa.Fill(userTable);
+                        sqlCon.Close();
+                    }
+                    var name = String.Concat(userTable.Rows[0][0].ToString(), extension);
                     if (file != null && file.ContentLength > 0)
                     {
-                        var path = Path.Combine(Server.MapPath("~/Content/avatars"), Path.GetFileName(file.FileName));
-                        Debug.WriteLine(Path.GetFileName(file.FileName));
+                        var path = Path.Combine(Server.MapPath("~/Content/avatars"), name);
                         Debug.WriteLine(path);
                         file.SaveAs(path);
                     }
@@ -533,17 +542,17 @@ namespace cliphostingsite.Controllers
                     {
                         string query = ("UPDATE usertbl SET avatar = @avatar WHERE publicuid = @publicuid");
                         SqlCommand sqlCmd = new SqlCommand(query, sqlCon);
-                        sqlCmd.Parameters.AddWithValue("@avatar", Path.GetFileName(file.FileName));
+                        sqlCmd.Parameters.AddWithValue("@avatar", name);
                         sqlCmd.Parameters.AddWithValue("@publicuid", Session["publicuid"]);
                         Debug.WriteLine(query);
-                        Debug.WriteLine(Path.GetFileName(file.FileName));
+                        Debug.WriteLine(name);
                         Debug.WriteLine(Session["publicuid"]);
                         try
                         {
                             sqlCon.Open();
                             sqlCmd.ExecuteNonQuery();
                             Debug.WriteLine("Ran code");
-                            Session["avatar"] = Path.GetFileName(file.FileName);
+                            Session["avatar"] = name;
                             return true;
 
                         }

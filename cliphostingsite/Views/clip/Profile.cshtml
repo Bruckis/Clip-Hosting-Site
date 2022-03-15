@@ -11,52 +11,56 @@
     <script src="~/Scripts/jquery-3.4.1.js"></script>
     <script src="~/Scripts/jquery.validate.min.js"></script>
     <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
     <link href="~/Content/main.css" rel="stylesheet">
+    <link href="~/Scripts/cropper.min.css" rel="stylesheet" type="text/css"/>
     @Styles.Render("~/Content/bootstrap.min.css")
-
     <script>
-        $('#username').click(function () {
-            var name = $(this).text();
-            $(this).html('');
-            $('<input></input>')
-                .attr({
-                    'type': 'text',
-                    'name': 'username',
-                    'id': 'txt_username',
-                    'size': '30',
-                    'value': name
-                })
-                .appendTo('#username');
-            $('#txt_username').focus();
-        });
-
-
-
-
-        $(document).on('blur', '#txt_username', function () {
-            var username = $(this).val().toString();
-            console.log(username)
-            UsernameDic =
-            {
-                "username": username.toString(),
-            }
-            $.ajax({
-                type: 'POST',
-                url: '/clip/changeUsername',
-                dataType: 'JSON',
-                contentType: "application/json; charset=utd-8",
-                data: JSON.stringify(UsernameDic),
-                success: function (data) {
-                    if (data) {
-                        $('#username').text(username);
-                        alert("Username has been changed")
-                    }
-                    else {
-                        alert("An error has occured, please try again")
-                    }
-                }
+        $(document).ready(function () {
+            $('#username').click(function () {
+                console.log("click")
+                var name = $(this).text();
+                $(this).html('');
+                $('<input></input>')
+                    .attr({
+                        'type': 'text',
+                        'name': 'username',
+                        'id': 'txt_username',
+                        'size': '30',
+                        'value': name
+                    })
+                    .appendTo('#username');
+                $('#txt_username').focus();
             });
-        });
+
+
+
+
+            $(document).on('blur', '#txt_username', function () {
+                var username = $(this).val().toString();
+                console.log(username)
+                UsernameDic =
+                {
+                    "username": username.toString(),
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/clip/changeUsername',
+                    dataType: 'JSON',
+                    contentType: "application/json; charset=utd-8",
+                    data: JSON.stringify(UsernameDic),
+                    success: function (data) {
+                        if (data) {
+                            $('#username').text(username);
+                            alert("Username has been changed")
+                        }
+                        else {
+                            alert("An error has occured, please try again")
+                        }
+                    }
+                });
+            });
+        })
     </script>
 
     <script>
@@ -82,6 +86,21 @@
 
 </head>
 
+<style type="text/css">
+    img {
+        display: block;
+        max-width: 100%;
+    }
+
+    .preview {
+        overflow: hidden;
+        width: 160px;
+        height: 160px;
+        margin: 10px;
+        border: 1px solid red;
+    }
+</style>
+
 <h2>Profile</h2>
 
 <div>
@@ -91,9 +110,48 @@
     <br />
     <br />
     <div>
-        <label for="imgupload"class="btn">Change avatar</label>
-        <input type="file" id="imgupload" style="visibility:hidden" accept="image/*" onchange="uploadAvatar()" /></>
+        <label for="uploadimage" class="btn">Change avatar</label>
+        <form method="post">
+            <input type="file" id="uploadimage" name="image" class="image" style="visibility:hidden" accept="image/*" /></>
+
+        </form>
     </div>
+
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Crop image</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="img-container">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!--  default image where we will set the src via jquery-->
+                                <img id="image">
+                            </div>
+                            <div class="col-md-4">
+                                <div class="preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="crop">Crop</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
     <div id="avatar"><img src="~/Content/avatars/@Session["avatar"]" /></div>
     <br />
     <br />
@@ -115,3 +173,76 @@
     @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
+
+<script src="~/Scripts/cropper.min.js" type="text/javascript"></script>
+<script>
+
+    var bs_modal = $('#modal');
+    var image = document.getElementById('image');
+    var cropper, reader, file;
+
+
+    $("body").on("change", ".image", function (e) {
+        var files = e.target.files;
+        var done = function (url) {
+            image.src = url;
+            bs_modal.modal('show');
+        };
+
+
+        if (files && files.length > 0) {
+            file = files[0];
+
+            if (URL) {
+                done(URL.createObjectURL(file));
+            } else if (FileReader) {
+                reader = new FileReader();
+                reader.onload = function (e) {
+                    done(reader.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+
+    bs_modal.on('shown.bs.modal', function () {
+        cropper = new Cropper(image, {
+            aspectRatio: 1,
+            viewMode: 3,
+            preview: '.preview'
+        });
+    }).on('hidden.bs.modal', function () {
+        cropper.destroy();
+        cropper = null;
+    });
+
+    $("#crop").click(function () {
+        canvas = cropper.getCroppedCanvas({
+            width: 160,
+            height: 160,
+        });
+        console.log("crop clicked")
+
+        canvas.toBlob(function (blob) {
+            url = URL.createObjectURL(blob);
+            var file = new File([blob], "tempname");
+                console.log("test")
+                var pfp_file = blob;
+                var form_data = new FormData();
+            form_data.append(pfp_file.type, pfp_file);
+            form_data.append("extension", "." + blob.type.slice(-3))
+                $.ajax({
+                    type: 'POST',
+                    url: '/clip/changeAvatar',
+                    data: form_data,
+                    contentType: false,
+                    processData: false,
+                    success: function () {
+                        alert("Avatar has been changed");
+                        location.reload();
+                    }
+                });
+        });
+    });
+
+</script>
